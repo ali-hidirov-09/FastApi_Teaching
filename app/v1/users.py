@@ -11,12 +11,70 @@ class BaseSchema(BaseModel):
     model_config = ConfigDict(
         alias_generator=to_camel,
         populate_by_name=True,
-        extra='forbid'
+        extra='forbid' # allow, ignore
     )
 
 MinStr = Annotated[str, Field(min_length=3)]
 MinInt = Annotated[int, Field(gt=0)]
+
 #------------------------------------------Dars_5------------------------------------------------------------
+
+
+job_list = []
+
+class JobCreate(BaseSchema):
+    title: MinStr
+    description: str = Field(..., min_length=10)
+    salary: float = Field(..., gt=0)
+    parol: str = Field(min_length=8)
+
+# forbit - ortiqcha maydonga ruxsat yo'q
+# allow - xammasiga ruxsat
+# ignore - ignore qiladi, ortiqcha ma'lumot kira oladi lekin kirgan ortiqcha ma'lumotni ko'rsatmidi
+
+
+class JobResponse(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        extra='ignore'
+    )
+    title: MinStr
+    description: str = Field(..., min_length=10)
+    salary: float = Field(..., gt=0)
+
+
+
+@router.post("/create", response_model=JobResponse, status_code=201)
+async def job_create_2(job: JobCreate):
+    job_data = job.model_dump()
+    job_data["id"] = len(job_list) + 1
+    job_data["status"] = "Active"
+    job_data["secret"] = "******"
+    job_list.append(job_data)
+    print(job_data)
+    return job_data
+
+
+
+
+class UserOut(BaseSchema):
+    username: str
+    email: EmailStr
+
+
+@router.post("/test-filter", response_model=UserOut, status_code=201)
+async def test_filter(user:UserOut):
+    raw_data = user.model_dump()
+    raw_data["aaa"] = "aaaaa"
+    print(raw_data)
+
+    return raw_data
+
+
+
+
+#------------------------------------------Dars_4------------------------------------------------------------
 
 
 class UserSchema(BaseSchema):
