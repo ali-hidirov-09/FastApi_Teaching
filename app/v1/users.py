@@ -1,9 +1,9 @@
 from typing import Optional
-from pydantic import BaseModel, SecretStr, ConfigDict, Field, EmailStr
+from pydantic import BaseModel, SecretStr, ConfigDict, Field, EmailStr, model_validator, field_validator
 from typing import Annotated
 from fastapi import APIRouter, Path, Query
 from pydantic.alias_generators import to_camel
-
+from schemas import Account
 router = APIRouter()
 
 
@@ -17,7 +17,16 @@ class BaseSchema(BaseModel):
 MinStr = Annotated[str, Field(min_length=3)]
 MinInt = Annotated[int, Field(gt=0)]
 
-#------------------------------------------Dars_5------------------------------------------------------------
+#----------------------------------------------------------Dars_6----------------------------------------------------------------------------
+
+@router.post("/create-account")
+def create_account(user: Account):
+    data = user.model_dump()
+
+    return {"data": data}
+
+
+#----------------------------------------------------------Dars_5----------------------------------------------------------------------------
 
 
 job_list = []
