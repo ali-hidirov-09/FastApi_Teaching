@@ -3,6 +3,8 @@ from pydantic import BaseModel, SecretStr, ConfigDict, Field, EmailStr, model_va
 from typing import Annotated
 from fastapi import APIRouter, Path, Query
 from pydantic.alias_generators import to_camel
+from starlette.status import HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED, HTTP_402_PAYMENT_REQUIRED
+from exceptions import ObjectNotFound, NotRegistered
 from schemas import Account
 router = APIRouter()
 
@@ -16,6 +18,40 @@ class BaseSchema(BaseModel):
 
 MinStr = Annotated[str, Field(min_length=3)]
 MinInt = Annotated[int, Field(gt=0)]
+
+#----------------------------------------------------------Dars_7----------------------------------------------------------------------------
+PositiveInt = Annotated[int, Field(gt=0)]
+
+jobs = [
+    {"id": 1, "title": "Python Developer", "min_salary": 1000},
+    {"id": 2, "title": "JS Developer", "min_salary": 1500}
+]
+
+
+@router.get("/job/{job_id}")
+async def get_job_id(job_id: PositiveInt):
+    for i in jobs:
+        if i["id"] == job_id:
+            return i
+    else:
+        raise ObjectNotFound(model_name="jobs",obj_id=job_id, status_code=404)
+
+
+
+@router.delete("/job/{job_id}", status_code=HTTP_204_NO_CONTENT)
+async def delete_job(job_id:PositiveInt):
+    for index, job in enumerate(jobs):
+        if job["id"] == job_id:
+            jobs.pop(index)
+            return
+
+    else:
+        raise ObjectNotFound(model_name="jobs", obj_id=job_id, status_code=410)
+
+
+@router.get("/get/{user_id}")
+async def get_user(user_id:int):
+    return NotRegistered(user_id=user_id, status_code=HTTP_401_UNAUTHORIZED)
 
 #----------------------------------------------------------Dars_6----------------------------------------------------------------------------
 
