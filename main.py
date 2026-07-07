@@ -3,6 +3,11 @@ from fastapi.responses import RedirectResponse
 from app import router
 from exceptions import setup_exception_handlers
 
+from core.database import engine, Base
+import models
+
+Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI(
     title="Teaching Project",
