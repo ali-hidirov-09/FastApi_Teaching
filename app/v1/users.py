@@ -1,11 +1,15 @@
 from typing import Optional
 from pydantic import BaseModel, SecretStr, ConfigDict, Field, EmailStr, model_validator, field_validator
 from typing import Annotated
-from fastapi import APIRouter, Path, Query
+from fastapi import APIRouter, Path, Query, Depends, status
 from pydantic.alias_generators import to_camel
 from starlette.status import HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED, HTTP_402_PAYMENT_REQUIRED
 from exceptions import ObjectNotFound, NotRegistered
 from schemas import Account
+from sqlalchemy.ext.asyncio import AsyncSession
+from core.database import get_async_session
+from sqlalchemy import text
+from exceptions import ServerError
 router = APIRouter()
 
 
@@ -18,6 +22,21 @@ class BaseSchema(BaseModel):
 
 MinStr = Annotated[str, Field(min_length=3)]
 MinInt = Annotated[int, Field(gt=0)]
+
+
+#----------------------------------------------------------Dars_9----------------------------------------------------------------------------
+
+@router.get("/get-db-version")
+async  def get_db_version(db: AsyncSession = Depends(get_async_session)):
+    try:
+        query = text("SELECT version();")
+        result = await db.execute(query)
+        version_string = result.scalar()
+        return {"postgresql_version": version_string}
+
+    except Exception:
+        raise ServerError(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, message="Serverda xatolik ketdi tuzatamiz yaqinda")
+
 
 #----------------------------------------------------------Dars_7----------------------------------------------------------------------------
 PositiveInt = Annotated[int, Field(gt=0)]
