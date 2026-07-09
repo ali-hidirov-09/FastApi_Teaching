@@ -25,7 +25,7 @@ MinInt = Annotated[int, Field(gt=0)]
 
 
 #----------------------------------------------------------Dars_9----------------------------------------------------------------------------
-
+# Anti Pattern
 @router.get("/get-db-version")
 async  def get_db_version(db: AsyncSession = Depends(get_async_session)):
     try:
