@@ -15,3 +15,4 @@ class User(Base):
     password: Mapped[str] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(server_default=text("CURRENT_TIMESTAMP"))
 
+
