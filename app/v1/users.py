@@ -3,6 +3,7 @@ from pydantic import BaseModel, SecretStr, ConfigDict, Field, EmailStr, model_va
 from typing import Annotated
 from fastapi import APIRouter, Path, Query, Depends, status
 from pydantic.alias_generators import to_camel
+from sqlalchemy.util import await_only
 from starlette.status import HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED, HTTP_402_PAYMENT_REQUIRED
 from exceptions import ObjectNotFound, NotRegistered
 from schemas import Account
@@ -10,6 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.database import get_async_session
 from sqlalchemy import text
 from exceptions import ServerError
+from repositories import JobRepository, UserRepository
+from schemas import CreateUser, JobCreate
 router = APIRouter()
 
 
@@ -22,6 +25,42 @@ class BaseSchema(BaseModel):
 
 MinStr = Annotated[str, Field(min_length=3)]
 MinInt = Annotated[int, Field(gt=0)]
+
+#----------------------------------------------------------Dars_12----------------------------------------------------------------------------
+@router.get("/user-with-jobs")
+async def get_user_with_their_job(
+        db: AsyncSession = Depends(get_async_session)
+):
+    repo = UserRepository(db)
+    return await repo.get_users_with_jobs()
+
+
+@router.get("/job-with-user")
+async def get_job_with_user(
+        db: AsyncSession = Depends(get_async_session)
+):
+    repo = JobRepository(db)
+    return await repo.get_jobs_with_user()
+
+
+@router.post("/create-job")
+async def create_job(
+        job_data: JobCreate,
+        db: AsyncSession = Depends(get_async_session)
+):
+    repo = JobRepository(db)
+    return await repo.create_job(job_data)
+
+
+@router.post("/create-user")
+async def create_user(
+        user_data: CreateUser,
+        db: AsyncSession = Depends(get_async_session)
+):
+    repo = UserRepository(db)
+    user = await repo.create_user(user_data)
+    return user
+
 
 
 #----------------------------------------------------------Dars_9----------------------------------------------------------------------------
