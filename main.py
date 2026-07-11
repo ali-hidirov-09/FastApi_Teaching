@@ -2,16 +2,12 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from app import router
 from exceptions import setup_exception_handlers
-from core.database import engine, Base
-import models
 from contextlib import asynccontextmanager
 
 
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     async with engine.begin() as conn:
-#         await conn.run_sync(Base.metadata.create_all)
-#     yield
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
 
 
 

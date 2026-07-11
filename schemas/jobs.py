@@ -53,4 +53,9 @@ class Account(BaseSchema):
         return self
 
 
+class JobCreate(BaseSchema):
+    category: str
+    title: str
+    salary: int
+
 
