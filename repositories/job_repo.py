@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from models import Job
+from sqlalchemy.orm import joinedload
 
 
 class JobRepository:
@@ -19,10 +20,14 @@ class JobRepository:
         return result.scalar_one_or_none()
 
     async def create_job(self, job_obj):
-        self.session.add(job_obj)
+        job_data = job_obj.model_dump()
+        job_data['owner_id'] = 1
+        info_job = Job(**job_data)
+
+        self.session.add(info_job)
         await self.session.commit()
-        await self.session.refresh(job_obj)
-        return job_obj
+        await self.session.refresh(info_job)
+        return info_job
 
 
     async def update(self, job_id: int, update_data: dict):
@@ -45,3 +50,12 @@ class JobRepository:
             await self.session.commit()
             return True
         return False
+
+    async def get_jobs_with_user(self):
+    # N+1 muammosini oldini olish uchun selectinload ishlatildi
+        query = select(Job).options(joinedload(Job.user))
+        result = await self.session.execute(query)
+        return result.scalars().all()
+
+
+

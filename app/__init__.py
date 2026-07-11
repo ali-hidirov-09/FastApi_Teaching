@@ -1,4 +1,4 @@
-from app.v1 import users
+from app.v1 import users, vacansies
 from fastapi import APIRouter
 
 router = APIRouter()
